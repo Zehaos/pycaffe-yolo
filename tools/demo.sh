@@ -1,0 +1,1 @@
+python demo.py -m models/googlenet/gnet_deploy.prototxt -w snapshot/gnet_yolo_iter_263.caffemodel -i data/003941.jpg

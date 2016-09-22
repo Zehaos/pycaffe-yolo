@@ -1,0 +1,19 @@
+net: "models/yolonet/yolonet_train.prototxt"
+display: 20
+
+lr_policy: "multifixed"
+stagelr: 0.001
+stagelr: 0.01
+stagelr: 0.001
+stagelr: 0.0001
+stageiter: 500
+stageiter: 16000
+stageiter: 24000
+stageiter: 32000
+
+max_iter: 32000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 2000
+snapshot_prefix: "snapshot/yolonet_yolo"
+solver_mode: GPU

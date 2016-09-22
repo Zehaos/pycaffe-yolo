@@ -1,0 +1,1 @@
+/home/zehao/Dataset/VOC-DATASET/VOCdevkit/VOC2007/JPEGImages/003941.jpg /home/zehao/Dataset/VOC-DATASET/VOCdevkit/VOC2007/Annotations/003941.xml
