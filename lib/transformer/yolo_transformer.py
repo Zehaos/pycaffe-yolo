@@ -132,15 +132,9 @@ class YoloTransformer:
         Color dithering for data augmentation.
         Including brightness, contrast and saturation dithering.
         """
-        contrast = random.uniform(0.7, 1.2)
-        brightness = random.uniform(-30, 20)
-        '''
-        TEST = False
-        if TEST:
-            contrast = 1
-            brightness = 0
-        '''
-        saturation = random.uniform(-30, 30)
+        contrast = random.gauss(1, 0.07)
+        brightness = random.gauss(0, 5)
+        saturation = random.gauss(0, 5)
         saturation_base = random.choice([np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])])
         img = np.uint8(im*contrast + brightness + saturation_base*saturation)
         return img
