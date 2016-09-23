@@ -99,7 +99,6 @@ class YoloTransformer:
         img_width = np.shape(im)[0]
         img_height = np.shape(im)[1]
         label_correct = np.zeros_like(label)
-        label_correct[:] = label
         obj_idx = np.where(label[:, :, 0] > 0)
         for [i, j] in zip(obj_idx[0], obj_idx[1]):
             label_ = label[i][j][:]
@@ -115,11 +114,15 @@ class YoloTransformer:
                 else (x * img_width - w * img_width * 0.5)
             ymin = 0 if (y * img_height - h * img_height * 0.5) < 0 \
                 else (y * img_height - h * img_height * 0.5)
-            label_correct[i][j][1] = 0.5 * (xmin + xmax) / img_width
-            label_correct[i][j][2] = 0.5 * (ymin + ymax) / img_height
-            label_correct[i][j][3] = (xmax - xmin) / img_width
-            label_correct[i][j][4] = (ymax - ymin) / img_height
-            return label_correct
+            if xmin > img_width or xmax < 0 or ymin > img_height or ymax < 0:
+                continue
+            else:
+                label_correct[i][j][:] = label[i][j][:]
+                label_correct[i][j][1] = 0.5 * (xmin + xmax) / img_width
+                label_correct[i][j][2] = 0.5 * (ymin + ymax) / img_height
+                label_correct[i][j][3] = (xmax - xmin) / img_width
+                label_correct[i][j][4] = (ymax - ymin) / img_height
+        return label_correct
 
     def set_color_dithering(self, flag):
         self.__dithering = flag
@@ -130,7 +133,7 @@ class YoloTransformer:
         Including brightness, contrast and saturation dithering.
         """
         contrast = random.uniform(0.7, 1.2)
-        brightness = random.uniform(-40, 30)
+        brightness = random.uniform(-30, 20)
         '''
         TEST = False
         if TEST:
