@@ -122,6 +122,7 @@ class BatchLoader(object):
         list_file = params['split'] + '.txt'
         self.indexlist = [line.rstrip('\n') for line in open(
             osp.join(self.list_root, list_file))]
+        shuffle(self.indexlist)
         self._cur = 0  # current image
         # this class does some simple data-manipulations
         self.transformer = SimpleTransformer(self.mean)
