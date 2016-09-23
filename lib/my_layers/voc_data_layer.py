@@ -5,7 +5,6 @@ import numpy as np
 import os.path as osp
 
 from random import shuffle
-from PIL import Image
 
 from transformer.simple_transformer import SimpleTransformer
 from dataset_parser.voc_label_parse import VocLabelParser
@@ -142,7 +141,7 @@ class BatchLoader(object):
         # Load an image
         index = self.indexlist[self._cur]  # Get the image index
         image_file = index.split(' ')[0]
-        im = np.asarray(Image.open(image_file))
+        im = np.asarray(scipy.misc.imread(image_file))
         self.ori_im_shape = np.shape(im)[0:2]
         im = scipy.misc.imresize(im, self.im_shape)  # resize
 
@@ -167,14 +166,15 @@ class BatchLoader(object):
         :return: yolo label
         """
         yolo_label = np.zeros([self.side, self.side, (1 + self.coords) + self.classes]).astype(np.float32)
+        shuffle(labels)
         for label in labels:
             yolo_box = self.convert_to_yolo_box(self.ori_im_shape[::-1], list(label[2:]))
             assert np.max(yolo_box) < 1
             [loc_y, loc_x] = [int(np.floor(yolo_box[1] * self.side)), int(np.floor(yolo_box[0] * self.side))]
-            yolo_label[loc_y][loc_x][0] = 1.0 # is obj
-            yolo_label[loc_y][loc_x][1:5] = yolo_box # bbox
-            yolo_label[loc_y][loc_x][5:] = 0 # only one obj in one grid
-            yolo_label[loc_y][loc_x][4+label[0]] = 1.0 # class
+            yolo_label[loc_y][loc_x][0] = 1.0  # is obj
+            yolo_label[loc_y][loc_x][1:5] = yolo_box  # bbox
+            yolo_label[loc_y][loc_x][5:] = 0  # only one obj in one grid
+            yolo_label[loc_y][loc_x][4+label[0]] = 1.0  # class
         return yolo_label
 
     def convert_to_yolo_box(self, size, box):

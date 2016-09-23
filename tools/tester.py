@@ -7,7 +7,7 @@ import numpy as np
 import os
 import Image, ImageDraw
 from transformer.simple_transformer import SimpleTransformer
-
+from transformer.yolo_transformer import YoloTransformer
 
 classes_dict = {"aeroplane": 1, "bicycle": 2, "bird": 3, "boat": 4, "bottle": 5, "bus": 6,
                 "car": 7, "cat": 8, "chair": 9, "cow": 10, "diningtable": 11, "dog": 12, "horse": 13,
@@ -60,7 +60,7 @@ class NetTester:
         locations = np.where(mask > 0)
         img = Image.fromarray(image)
         drawobj = ImageDraw.Draw(img)
-        print mask
+        #print mask
         for [i, j] in zip(locations[0], locations[1]):
             l = label[i][j][:]
             yolo_box = l[1:5]
@@ -79,7 +79,7 @@ class NetTester:
             for k in range(0, 7):
                 drawobj.line([448/7.0*k, 0, 448/7.0*k, 448])
                 drawobj.line([0, 448 / 7.0 * k, 448, 448 / 7.0 * k])
-            print label[i][j]
+            #print label[i][j]
         img.show()
 
 
@@ -90,11 +90,24 @@ net_tester.forward()
 
 imgs_blob = net_tester.get_blob("data")
 labels_blob = net_tester.get_blob("label")
-img = imgs_blob.data[0]
-label = labels_blob.data[0]
+img = imgs_blob.data[7]
+label = labels_blob.data[7]
 
 transformer = SimpleTransformer((104.00699, 116.66877, 122.67892))
 
 img = transformer.deprocess(img)
 
 net_tester.draw_label(img, label)
+
+yolo_transformer = YoloTransformer()
+
+yolo_transformer.set_flip(True)
+(img_fliped, label_fliped) = yolo_transformer.flip(img, label)
+
+yolo_transformer.set_jitter(0.2)
+(img_translated, label_translated) = yolo_transformer.jitter(img_fliped, label_fliped)
+net_tester.draw_label(img_translated, label_translated)
+
+yolo_transformer.set_color_dithering(True)
+img_dithered = yolo_transformer.color_dithering(img_fliped)
+net_tester.draw_label(img_dithered, label_fliped)

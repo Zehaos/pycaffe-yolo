@@ -37,7 +37,3 @@ class VocLabelParser:
             labels.append([classes_dict[name], int(difficult), int(float(xmin)),
                           int(float(xmax)), int(float(ymin)), int(float(ymax))])
         return labels
-
-parser = VocLabelParser('/home/zehao/Dataset/VOC-DATASET/VOCdevkit/VOC2012/Annotations/2007_007763.xml')
-labels = parser.parse()
-print labels
