@@ -1,0 +1,3 @@
+[submodule "caffe-yolo"]
+	path = caffe-yolo
+	url = https://github.com/Zehaos/caffe-yolo
