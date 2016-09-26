@@ -27,6 +27,11 @@ PYTHONPATH=../lib ./train_googlenet.sh
 ./demo.sh
 ```
 
- ![image](https://github.com/Zehaos/pycaffe-yolo/demo/gnet_iter10000.png)
- ![image](https://github.com/Zehaos/pycaffe-yolo/demo/gnet_iter30000.png)
- ![image](https://github.com/Zehaos/pycaffe-yolo/demo/gnet_iter60000.png)
+**Iter10000**
+ ![image](https://github.com/Zehaos/pycaffe-yolo/tree/master/demo/gnet_iter10000.png)
+
+ **Iter30000**
+ ![image](https://github.com/Zehaos/pycaffe-yolo/tree/master/demo/gnet_iter30000.png)
+ 
+ **Iter60000**
+ ![image](https://github.com/Zehaos/pycaffe-yolo/tree/master/demo/gnet_iter60000.png)
