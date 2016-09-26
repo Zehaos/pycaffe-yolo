@@ -79,20 +79,24 @@ class YoloTransformer:
         """
         Jitter the im for augmentation.
         """
-        sh = random.uniform((-1)*self.__jitter_value, self.__jitter_value)  # Horizontal
-        dh = sh * np.shape(im)[1]
-        sv = random.uniform((-1) * self.__jitter_value, self.__jitter_value)  # Vertical
-        dv = sv * np.shape(im)[0]
-        translation_matrix = np.float32([[1, 0, dh], [0, 1, dv]])
-        img_translated = cv2.warpAffine(im, translation_matrix, np.shape(im)[0:2])
-        label_translated = np.zeros_like(label)
-        label_translated[:] = label
-        obj_idx = np.where(label[:, :, 0] > 0)
-        for [i, j] in zip(obj_idx[0], obj_idx[1]):
-            label_translated[i][j][1] = label[i][j][1] + sh
-            label_translated[i][j][2] = label[i][j][2] + sv
-        label_translated = self.__correct_label(im, label_translated)
-        return (img_translated, label_translated)
+        if self.__jitter_value > 0:
+            sh = random.uniform((-1) * self.__jitter_value, self.__jitter_value)  # Horizontal
+            dh = sh * np.shape(im)[1]
+            sv = random.uniform((-1) * self.__jitter_value, self.__jitter_value)  # Vertical
+            dv = sv * np.shape(im)[0]
+            translation_matrix = np.float32([[1, 0, dh], [0, 1, dv]])
+            img_translated = cv2.warpAffine(im, translation_matrix, np.shape(im)[0:2])
+            label_translated = np.zeros_like(label)
+            label_translated[:] = label
+            obj_idx = np.where(label[:, :, 0] > 0)
+            for [i, j] in zip(obj_idx[0], obj_idx[1]):
+                label_translated[i][j][1] = label[i][j][1] + sh
+                label_translated[i][j][2] = label[i][j][2] + sv
+            label_translated = self.__correct_label(im, label_translated)
+            return (img_translated, label_translated)
+        else:
+            return (im, label)
+
 
     def __correct_label(self, im, label):
         """TODO: deal with small obj, and mass obj"""

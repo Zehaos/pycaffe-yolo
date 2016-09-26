@@ -90,24 +90,16 @@ net_tester.forward()
 
 imgs_blob = net_tester.get_blob("data")
 labels_blob = net_tester.get_blob("label")
-img = imgs_blob.data[7]
-label = labels_blob.data[7]
+img = imgs_blob.data[0]
+label = labels_blob.data[0]
 
-transformer = SimpleTransformer((104.00699, 116.66877, 122.67892))
-
-img = transformer.deprocess(img)
-
-net_tester.draw_label(img, label)
-
-yolo_transformer = YoloTransformer()
-
-yolo_transformer.set_flip(True)
+yolo_transformer = YoloTransformer((104.00699, 116.66877, 122.67892))
+img = yolo_transformer.deprocess(img)
+yolo_transformer.set_flip(False)
 (img_fliped, label_fliped) = yolo_transformer.flip(img, label)
-
-yolo_transformer.set_jitter(0.2)
+yolo_transformer.set_jitter(0)
 (img_translated, label_translated) = yolo_transformer.jitter(img_fliped, label_fliped)
 net_tester.draw_label(img_translated, label_translated)
-
-yolo_transformer.set_color_dithering(True)
+yolo_transformer.set_color_dithering(False)
 img_dithered = yolo_transformer.color_dithering(img_fliped)
 net_tester.draw_label(img_dithered, label_fliped)

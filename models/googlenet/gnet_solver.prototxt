@@ -11,7 +11,7 @@ stageiter: 16000
 stageiter: 24000
 stageiter: 32000
 
-max_iter: 32000
+max_iter: 60000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 2000
