@@ -141,11 +141,11 @@ class YoloLossLayer(caffe.Layer):
                             self.coord_scale * (bottom[0].data[b][box_index+2:box_index + self.coords] - truth_box_[2:4])
                     self.avg_iou += iou
                     count += 1
-        print np.sum(np.power(self.diff, 2))
         top[0].data[...] = np.sum(np.power(self.diff, 2))
-        print("Detection Avg IOU:{}, Pos Cat:{}, All Cat:{}, Pos Obj:{}, Any Obj:{}, count:{}")\
+        print("Detection Avg IOU:{}, Pos Cat:{}, All Cat:{}, Pos Obj:{}, Any Obj:{}, count:{}, Loss:{}")\
             .format(self.avg_iou/count, self.avg_cat[0]/count, self.avg_allcat/(count*self.classes),
-                    self.avg_obj/count, self.avg_anyobj/(self.batch_size*self.side*self.side*self.num), count)
+                    self.avg_obj/count, self.avg_anyobj/(self.batch_size*self.side*self.side*self.num),
+                    count, float(top[0].data[...]))
 
     def backward(self, top, propagate_down, bottom):
         for i in range(2):

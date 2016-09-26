@@ -60,8 +60,7 @@ class YoloTransformer:
         """
         Filp the im for augmentation.
         """
-        assert self.__flip is True
-        if random.choice((True, False)):
+        if random.choice((True, False)) and self.__flip == True:
             im_fliped = np.fliplr(im)
             label_fliped = label
             obj_idx = np.where(label[:, :, 0] > 0)
@@ -72,6 +71,7 @@ class YoloTransformer:
             return (im, label)
 
     def set_jitter(self, jitter_value):
+        # Jitter_value should not be to large.
         assert jitter_value < 0.5
         self.__jitter_value = jitter_value
 
@@ -132,10 +132,13 @@ class YoloTransformer:
         Color dithering for data augmentation.
         Including brightness, contrast and saturation dithering.
         """
-        contrast = random.gauss(1, 0.07)
-        brightness = random.gauss(0, 5)
-        saturation = random.gauss(0, 5)
-        saturation_base = random.choice([np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])])
-        img = np.uint8(im*contrast + brightness + saturation_base*saturation)
-        return img
+        if self.__dithering:
+            contrast = random.gauss(1, 0.07)
+            brightness = random.gauss(0, 5)
+            saturation = random.gauss(0, 5)
+            saturation_base = random.choice([np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])])
+            img = np.uint8(im*contrast + brightness + saturation_base*saturation)
+            return img
+        else:
+            return im
 

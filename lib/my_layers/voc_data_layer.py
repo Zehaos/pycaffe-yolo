@@ -6,7 +6,7 @@ import os.path as osp
 
 from random import shuffle
 
-from transformer.simple_transformer import SimpleTransformer
+from transformer.yolo_transformer import YoloTransformer
 from dataset_parser.voc_label_parse import VocLabelParser
 
 
@@ -62,7 +62,6 @@ class VOCLocDataLayerSyncSync(caffe.Layer):
         self.coords = params.get('coords', 4)
         self.side = params.get('side', 7)
         self.num = params.get('num', 7)
-
         # === reshape tops ===
         # since we use a fixed input image size, we can shape the data layer
         # once. Else, we'd have to do it in the reshape call.
@@ -118,14 +117,17 @@ class BatchLoader(object):
         self.coords = params.get('coords', 4)
         self.side = params.get('side', 7)
         self.num = params.get('num', 7)
+        self.flip = params.get('flip', False)
+        self.jitter = params.get('jitter', 0)
+        self.dither = params.get('dither', False)
         # get list of image indexes.
         list_file = params['split'] + '.txt'
         self.indexlist = [line.rstrip('\n') for line in open(
             osp.join(self.list_root, list_file))]
         shuffle(self.indexlist)
         self._cur = 0  # current image
-        # this class does some simple data-manipulations
-        self.transformer = SimpleTransformer(self.mean)
+        # this class does some simple data-manipulations and data-augmentations.
+        self.transformer = YoloTransformer(self.mean)
 
         print "BatchLoader initialized with {} images".format(
             len(self.indexlist))
@@ -146,19 +148,22 @@ class BatchLoader(object):
         self.ori_im_shape = np.shape(im)[0:2]
         im = scipy.misc.imresize(im, self.im_shape)  # resize
 
-        '''
-        # do a simple horizontal flip as data augmentation
-        flip = np.random.choice(2)*2-1  # -1 or 1
-        im = im[:, ::flip, :]'''
-
         # Load and prepare ground truth
         vocparser = VocLabelParser(index.split(' ')[1])
         anns = vocparser.parse()
         yolo_label = self.transform_to_yolo_labels(anns)
-        # if flip == -1:  # do flip
 
         self._cur += 1
-        return self.transformer.preprocess(im), yolo_label
+        # It is strange that augmentation bring bad result when using googlenet as the base net.
+        self.transformer.set_flip(self.flip)
+        self.transformer.set_jitter(self.jitter)
+        self.transformer.set_color_dithering(self.dither)
+        (img_fliped, label_fliped) = self.transformer.flip(im, yolo_label)
+        img_dithered = self.transformer.color_dithering(img_fliped)
+        (img_translated, label_translated) = self.transformer.jitter(img_dithered, label_fliped)
+        img_preprocessed = self.transformer.preprocess(img_translated)
+
+        return img_preprocessed, label_translated
 
     def transform_to_yolo_labels(self, labels):
         """
@@ -181,9 +186,6 @@ class BatchLoader(object):
     def convert_to_yolo_box(self, size, box):
         """
         Convert VOC bbox to yolo bbox
-        :param size: image shape
-        :param box: voc bbox [xmin, xmax, ymin, ymax]
-        :return: yolo bbox
         """
         dw = 1. / size[0]
         dh = 1. / size[1]
